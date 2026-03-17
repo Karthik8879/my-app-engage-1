@@ -1,0 +1,23 @@
+<app-screen-container>
+  <app-header></app-header>
+  <div class="content">
+    <img
+      src="/LionIcon.png"
+      alt=""
+      class="lion-icon"
+      width="120"
+      height="120"
+    />
+    <h1 class="title">Follow to win 50 Lakh!</h1>
+    <p class="description">
+      Tap on your favorite contestant to follow them and stand a chance to win
+      big
+    </p>
+  </div>
+  <div class="cta-wrap">
+    <app-call-to-action-button
+      label="Follow a contestant"
+      (click)="onFollowContestant()"
+    />
+  </div>
+</app-screen-container>

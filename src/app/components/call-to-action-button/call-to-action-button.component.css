@@ -1,0 +1,19 @@
+.cta-button {
+  display: block;
+  width: 100%;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #e0e0e0 0%, #b0b0b0 100%);
+  color: #2a2a2a;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.cta-button:hover {
+  background: linear-gradient(180deg, #e8e8e8 0%, #b8b8b8 100%);
+}
