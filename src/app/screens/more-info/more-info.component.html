@@ -1,0 +1,57 @@
+<app-screen-container>
+  <div class="top-bar">
+    <button type="button" class="back-btn" (click)="goBack()" aria-label="Back">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <h1 class="title">More Info</h1>
+  </div>
+  <div class="tabs">
+    <button
+      type="button"
+      class="tab"
+      [class.active]="activeTab === 'terms'"
+      (click)="setActiveTab('terms')"
+    >
+      Terms &amp; Conditions
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.active]="activeTab === 'faqs'"
+      (click)="setActiveTab('faqs')"
+    >
+      FAQs
+    </button>
+  </div>
+  <div class="content-scroll">
+    @if (activeTab === 'terms') {
+      <ul class="terms-list">
+        @for (item of termsItems; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    }
+    @if (activeTab === 'faqs') {
+      <div class="faq-list">
+        @for (faq of faqItems; track faq.title + $index) {
+          <div class="faq-item">
+            <button
+              type="button"
+              class="faq-header"
+              (click)="toggleFaq($index)"
+              [attr.aria-expanded]="faq.expanded"
+            >
+              <span class="faq-title">{{ faq.title }}</span>
+              <span class="faq-caret" [class.expanded]="faq.expanded" aria-hidden="true">▼</span>
+            </button>
+            @if (faq.expanded) {
+              <div class="faq-body">{{ faq.body }}</div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</app-screen-container>
