@@ -1,0 +1,70 @@
+<app-screen-container>
+  <div class="top-bar">
+    <button type="button" class="back-btn" (click)="goBack()" aria-label="Back">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <h1 class="screen-title">Select a contestant</h1>
+  </div>
+
+  <p class="subtitle">Tap on the contestant you want to follow</p>
+
+  <div class="grid-scroll">
+    <div class="contestant-grid">
+      @for (contestant of contestants; track contestant.id) {
+        <button
+          type="button"
+          class="contestant-cell"
+          [class.selected]="isSelected(contestant)"
+          (click)="selectContestant(contestant)"
+        >
+          <div class="avatar-wrap">
+            @if (isSelected(contestant)) {
+              <svg class="gradient-ring" width="98" height="98" viewBox="0 0 98 98" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="49" cy="49" r="48" [attr.stroke]="'url(#grad-' + contestant.id + ')'" stroke-width="2"/>
+                <defs>
+                  <linearGradient [attr.id]="'grad-' + contestant.id" x1="2" y1="2" x2="100.208" y2="6.62371" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#1492FF"/>
+                    <stop offset="0.5" stop-color="#0860C4"/>
+                    <stop offset="1" stop-color="#EB0066"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            }
+            <img
+              class="avatar"
+              [src]="contestant.imageSrc"
+              [alt]="contestant.name"
+            />
+            @if (isSelected(contestant)) {
+              <span class="checkmark">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="12" [attr.fill]="'url(#check-grad-' + contestant.id + ')'"/>
+                  <path d="M7 12.5L10 15.5L17 8.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <defs>
+                    <linearGradient [attr.id]="'check-grad-' + contestant.id" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#1492FF"/>
+                      <stop offset="0.5" stop-color="#0860C4"/>
+                      <stop offset="1" stop-color="#EB0066"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </span>
+            }
+          </div>
+          <span class="contestant-name">{{ contestant.name }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (selectedContestant()) {
+    <div class="follow-cta-wrap">
+      <app-call-to-action-button
+        [label]="'Follow ' + selectedContestant()!.name"
+        (click)="onFollow()"
+      />
+    </div>
+  }
+</app-screen-container>

@@ -20,4 +20,13 @@
       (click)="onFollowContestant()"
     />
   </div>
+  @if (banner().showBanner) {
+    <div class="bottom-banner" aria-hidden="true">
+      <div class="bottom-banner__copy">
+        <p class="bottom-banner__title">{{ banner().title }}</p>
+        <p class="bottom-banner__subtitle">{{ banner().subtitle }}</p>
+      </div>
+      <img class="bottom-banner__logo" [src]="banner().logoSrc" alt="" />
+    </div>
+  }
 </app-screen-container>
