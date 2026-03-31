@@ -2,5 +2,7 @@
   "showBanner": true,
   "title": "The world is yours",
   "subtitle": "This is a non clickable banner",
-  "logoSrc": "/ScannerIcon.svg"
+  "logoSrc": "/ScannerIcon.svg",
+  "isEliminated": false,
+  "eliminatedName": ""
 }

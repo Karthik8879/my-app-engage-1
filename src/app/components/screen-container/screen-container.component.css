@@ -3,6 +3,7 @@
 }
 
 .screen-wrapper {
+  position: relative;
   width: 360px;
   height: 424px;
   overflow: auto;

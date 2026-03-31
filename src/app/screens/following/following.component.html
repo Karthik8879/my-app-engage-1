@@ -1,0 +1,81 @@
+<app-screen-container>
+  <app-header></app-header>
+  <div class="content">
+    <img
+      src="/LionIcon.png"
+      alt=""
+      class="lion-icon"
+      width="120"
+      height="120"
+    />
+    <h1 class="title">Follow to win 50 Lakh!</h1>
+    <p class="description">
+      Tap on your favorite contestant to follow them and stand a chance to win
+      big
+    </p>
+  </div>
+  @if (isEliminated()) {
+    <div class="following-card following-card--eliminated">
+      <img
+        class="following-card__avatar"
+        [src]="contestantImage()"
+        [alt]="contestantName()"
+      />
+      <div class="following-card__info">
+        <span class="following-card__label following-card__label--eliminated">Follow new contestant</span>
+        <span class="following-card__subtitle">{{ eliminatedName() }} has been eliminated</span>
+      </div>
+      <button
+        type="button"
+        class="following-card__follow-btn"
+        (click)="onChange()"
+      >
+        Follow
+      </button>
+    </div>
+  } @else {
+    <div class="following-card">
+      <img
+        class="following-card__avatar"
+        [src]="contestantImage()"
+        [alt]="contestantName()"
+      />
+      <div class="following-card__info">
+        <span class="following-card__label">FOLLOWING</span>
+        <span class="following-card__name">{{ contestantName() }}</span>
+      </div>
+      <button
+        type="button"
+        class="following-card__change-btn"
+        (click)="onChange()"
+      >
+        Change
+      </button>
+    </div>
+  }
+  @if (showToast()) {
+    <div class="toast">
+      <svg class="toast__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="10" fill="url(#toastGrad)"/>
+        <path d="M6 10.5L8.5 13L14 7.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="toastGrad" x1="0" y1="0" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#1492FF"/>
+            <stop offset="0.5" stop-color="#0860C4"/>
+            <stop offset="1" stop-color="#EB0066"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="toast__text">Started following</span>
+    </div>
+  }
+  @if (banner().showBanner) {
+    <div class="bottom-banner" aria-hidden="true">
+      <div class="bottom-banner__copy">
+        <p class="bottom-banner__title">{{ banner().title }}</p>
+        <p class="bottom-banner__subtitle">{{ banner().subtitle }}</p>
+      </div>
+      <img class="bottom-banner__logo" [src]="banner().logoSrc" alt="" />
+    </div>
+  }
+</app-screen-container>

@@ -50,8 +50,9 @@ export class SelectContestantComponent {
   onFollow(): void {
     const selected = this.selectedContestant();
     if (selected) {
-      // TODO: wire up actual follow logic
-      console.log('Following', selected.name);
+      this.router.navigate(['/following'], {
+        queryParams: { name: selected.name, image: selected.imageSrc },
+      });
     }
   }
 }
