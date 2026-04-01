@@ -12,6 +12,8 @@
     <p class="subtitle">Tap on your favorite contestant to follow them and stand a chance to win big</p>
   } @else if (selectionLocked()) {
     <p class="subtitle subtitle--closed">{{ flowConfig().timerStatus.selectScreen.closedTitle }}</p>
+  } @else if (isGuestMode()) {
+    <p class="subtitle">{{ flowConfig().guestFlow.selectSubtitle }}</p>
   } @else if (flowConfig().timerStatus.selectScreen.headerMode === 'dateOn') {
     <p class="subtitle">
       Selection window closes on
@@ -25,6 +27,12 @@
         [class.subtitle__time--urgent]="selectCountdownUrgent()"
       >{{ selectCountdownText() }}</span>
     </p>
+  }
+
+  @if (isGuestMode()) {
+    <div class="guest-login-banner" role="status">
+      {{ flowConfig().guestFlow.loginBannerText }}
+    </div>
   }
 
   <div class="grid-scroll">
@@ -89,5 +97,9 @@
 
   @if (showSupportToast()) {
     <div class="support-toast" role="status">{{ flowConfig().timerStatus.selectScreen.supportClosedToast }}</div>
+  }
+
+  @if (showGuestToast()) {
+    <div class="guest-login-toast" role="status">{{ flowConfig().guestFlow.loginToastText }}</div>
   }
 </app-screen-container>

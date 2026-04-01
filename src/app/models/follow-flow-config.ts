@@ -16,6 +16,13 @@ export interface SelectScreenConfig {
   supportClosedToast: string;
 }
 
+export interface GuestFlowConfig {
+  enabled: boolean;
+  selectSubtitle: string;
+  loginBannerText: string;
+  loginToastText: string;
+}
+
 export interface TimerStatusConfig {
   showTimerPill: boolean;
   timerMode: TimerMode;
@@ -43,6 +50,7 @@ export interface FollowFlowConfig {
   closedWindowFollowingDescription: string;
   eliminatedClosedSubcaption: string;
   timerStatus: TimerStatusConfig;
+  guestFlow: GuestFlowConfig;
 }
 
 export const DEFAULT_TIMER_STATUS: TimerStatusConfig = {
@@ -68,6 +76,13 @@ export const DEFAULT_TIMER_STATUS: TimerStatusConfig = {
   },
 };
 
+export const DEFAULT_GUEST_FLOW: GuestFlowConfig = {
+  enabled: false,
+  selectSubtitle: 'Tap on the contestant you want to follow',
+  loginBannerText: 'Login to follow a contestant',
+  loginToastText: 'Login to follow a contestant',
+};
+
 export const FOLLOW_FLOW_FALLBACK: FollowFlowConfig = {
   showBanner: true,
   title: 'The world is yours',
@@ -84,7 +99,18 @@ export const FOLLOW_FLOW_FALLBACK: FollowFlowConfig = {
     "The selection window is closed. You've chosen a contestant to follow until the end.",
   eliminatedClosedSubcaption: 'You can no longer follow this contestant.',
   timerStatus: DEFAULT_TIMER_STATUS,
+  guestFlow: DEFAULT_GUEST_FLOW,
 };
+
+function mergeGuestFlow(data?: Partial<GuestFlowConfig>): GuestFlowConfig {
+  const g = data ?? {};
+  return {
+    enabled: g.enabled ?? DEFAULT_GUEST_FLOW.enabled,
+    selectSubtitle: g.selectSubtitle ?? DEFAULT_GUEST_FLOW.selectSubtitle,
+    loginBannerText: g.loginBannerText ?? DEFAULT_GUEST_FLOW.loginBannerText,
+    loginToastText: g.loginToastText ?? DEFAULT_GUEST_FLOW.loginToastText,
+  };
+}
 
 function mergeTimerStatus(data?: Partial<TimerStatusConfig>): TimerStatusConfig {
   const t = data ?? {};
@@ -139,6 +165,7 @@ export function mergeFollowFlowConfig(data: Partial<FollowFlowConfig>): FollowFl
       data.eliminatedClosedSubcaption ??
       FOLLOW_FLOW_FALLBACK.eliminatedClosedSubcaption,
     timerStatus: mergeTimerStatus(data.timerStatus),
+    guestFlow: mergeGuestFlow(data.guestFlow),
   };
 }
 

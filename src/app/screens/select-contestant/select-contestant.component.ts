@@ -41,6 +41,7 @@ export class SelectContestantComponent implements OnInit, OnDestroy {
   readonly flowConfig = signal<FollowFlowConfig>(FOLLOW_FLOW_FALLBACK);
   readonly tick = signal(0);
   readonly showSupportToast = signal(false);
+  readonly showGuestToast = signal(false);
   readonly configLoaded = signal(false);
 
   readonly selectionLocked = computed(() => {
@@ -48,6 +49,11 @@ export class SelectContestantComponent implements OnInit, OnDestroy {
     return (
       c.selectionWindowClosed || c.timerStatus.selectScreen.headerMode === 'closed'
     );
+  });
+
+  readonly isGuestMode = computed(() => {
+    const c = this.flowConfig();
+    return c.guestFlow.enabled && !this.selectionLocked();
   });
 
   readonly selectCountdownText = computed(() => {
@@ -85,12 +91,16 @@ export class SelectContestantComponent implements OnInit, OnDestroy {
     return sel ? `Follow ${sel.name}` : 'Follow';
   });
 
-  readonly showCta = computed(
-    () => this.selectionLocked() || this.selectedContestant() !== null,
-  );
+  readonly showCta = computed(() => {
+    if (this.isGuestMode()) {
+      return false;
+    }
+    return this.selectionLocked() || this.selectedContestant() !== null;
+  });
 
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
   private supportToastTimer: ReturnType<typeof setTimeout> | null = null;
+  private guestToastTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private readonly router: Router,
@@ -101,7 +111,11 @@ export class SelectContestantComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     void this.configService.load().then((cfg) => {
       this.flowConfig.set(cfg);
-      this.applyPreselectionFromRoute();
+      if (!cfg.guestFlow.enabled) {
+        this.applyPreselectionFromRoute();
+      } else {
+        this.selectedContestant.set(null);
+      }
       this.maybeShowSupportToast(cfg);
       this.startCountdownIfNeeded(cfg);
       this.configLoaded.set(true);
@@ -136,6 +150,9 @@ export class SelectContestantComponent implements OnInit, OnDestroy {
       clearInterval(this.countdownInterval);
       this.countdownInterval = null;
     }
+    if (cfg.guestFlow.enabled) {
+      return;
+    }
     if (cfg.timerStatus.selectScreen.headerMode !== 'closesIn') {
       return;
     }
@@ -154,6 +171,9 @@ export class SelectContestantComponent implements OnInit, OnDestroy {
     }
     if (this.supportToastTimer) {
       clearTimeout(this.supportToastTimer);
+    }
+    if (this.guestToastTimer) {
+      clearTimeout(this.guestToastTimer);
     }
   }
 
@@ -175,8 +195,22 @@ export class SelectContestantComponent implements OnInit, OnDestroy {
     if (this.selectionLocked()) {
       return;
     }
+    if (this.isGuestMode()) {
+      const current = this.selectedContestant();
+      this.selectedContestant.set(current?.id === contestant.id ? null : contestant);
+      this.flashGuestToast();
+      return;
+    }
     const current = this.selectedContestant();
     this.selectedContestant.set(current?.id === contestant.id ? null : contestant);
+  }
+
+  private flashGuestToast(): void {
+    if (this.guestToastTimer) {
+      clearTimeout(this.guestToastTimer);
+    }
+    this.showGuestToast.set(true);
+    this.guestToastTimer = setTimeout(() => this.showGuestToast.set(false), 3000);
   }
 
   isSelected(contestant: Contestant): boolean {

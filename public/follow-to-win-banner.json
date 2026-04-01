@@ -32,5 +32,11 @@
       "closedTitle": "Selection window is closed now",
       "supportClosedToast": ""
     }
+  },
+  "guestFlow": {
+    "enabled": true,
+    "selectSubtitle": "Tap on the contestant you want to follow",
+    "loginBannerText": "Login to follow a contestant",
+    "loginToastText": "Login to follow a contestant"
   }
 }
