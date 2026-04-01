@@ -3,6 +3,12 @@
   "title": "The world is yours",
   "subtitle": "This is a non clickable banner",
   "logoSrc": "/ScannerIcon.svg",
+  "selectionWindowClosed": true,
+  "isFollowing": false,
   "isEliminated": true,
-  "eliminatedName": ""
+  "eliminatedName": "",
+  "openWindowDescription": "Tap on your favorite contestant to follow them and stand a chance to win big",
+  "closedWindowShortDescription": "Selection window is closed.",
+  "closedWindowFollowingDescription": "The selection window is closed. You've chosen a contestant to follow until the end.",
+  "eliminatedClosedSubcaption": "You can no longer follow this contestant."
 }
