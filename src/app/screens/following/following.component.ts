@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScreenContainerComponent } from '../../components/screen-container/screen-container.component';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -37,6 +37,9 @@ export class FollowingComponent implements OnInit, OnDestroy {
   readonly showToast = signal(true);
   readonly isEliminated = signal(false);
   readonly eliminatedName = signal('');
+  readonly eliminatedDisplayName = computed(
+    () => this.eliminatedName().trim() || this.contestantName(),
+  );
 
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 

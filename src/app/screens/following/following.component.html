@@ -23,11 +23,11 @@
       />
       <div class="following-card__info">
         <span class="following-card__label following-card__label--eliminated">Follow new contestant</span>
-        <span class="following-card__subtitle">{{ eliminatedName() }} has been eliminated</span>
+        <span class="following-card__subtitle">{{ eliminatedDisplayName() }} has been eliminated</span>
       </div>
       <button
         type="button"
-        class="following-card__follow-btn"
+        class="following-card__action-btn"
         (click)="onChange()"
       >
         Follow
@@ -46,7 +46,7 @@
       </div>
       <button
         type="button"
-        class="following-card__change-btn"
+        class="following-card__action-btn"
         (click)="onChange()"
       >
         Change
