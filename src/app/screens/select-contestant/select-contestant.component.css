@@ -37,6 +37,48 @@
   line-height: 1.35;
 }
 
+.subtitle--closed {
+  color: #ff3b4a;
+  font-weight: 600;
+}
+
+.subtitle__accent {
+  color: #e8c04d;
+  font-weight: 600;
+}
+
+.subtitle__time {
+  font-weight: 700;
+  color: #e8c04d;
+}
+
+.subtitle__time--urgent {
+  color: #ff3b4a;
+}
+
+.contestant-cell--locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.support-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 120px;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: min(320px, 100vw - 32px);
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(30, 30, 40, 0.95);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: center;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
 .grid-scroll {
   flex: 1;
   min-height: 0;

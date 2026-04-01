@@ -2,62 +2,13 @@ import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScreenContainerComponent } from '../../components/screen-container/screen-container.component';
 import { HeaderComponent } from '../../components/header/header.component';
-
-export interface FollowingBannerConfig {
-  showBanner: boolean;
-  title: string;
-  subtitle: string;
-  logoSrc: string;
-  isEliminated: boolean;
-  eliminatedName: string;
-  selectionWindowClosed: boolean;
-  isFollowing: boolean;
-  openWindowDescription: string;
-  closedWindowShortDescription: string;
-  closedWindowFollowingDescription: string;
-  eliminatedClosedSubcaption: string;
-}
-
-const BANNER_JSON_URL = '/follow-to-win-banner.json';
-
-const BANNER_FALLBACK: FollowingBannerConfig = {
-  showBanner: true,
-  title: 'The world is yours',
-  subtitle: 'This is a non clickable banner',
-  logoSrc: '/ScannerIcon.svg',
-  isEliminated: false,
-  eliminatedName: '',
-  selectionWindowClosed: false,
-  isFollowing: false,
-  openWindowDescription:
-    'Tap on your favorite contestant to follow them and stand a chance to win big',
-  closedWindowShortDescription: 'Selection window is closed.',
-  closedWindowFollowingDescription:
-    "The selection window is closed. You've chosen a contestant to follow until the end.",
-  eliminatedClosedSubcaption: 'You can no longer follow this contestant.',
-};
-
-function mergeFollowingConfig(data: Partial<FollowingBannerConfig>): FollowingBannerConfig {
-  return {
-    showBanner: data.showBanner ?? BANNER_FALLBACK.showBanner,
-    title: data.title ?? BANNER_FALLBACK.title,
-    subtitle: data.subtitle ?? BANNER_FALLBACK.subtitle,
-    logoSrc: data.logoSrc ?? BANNER_FALLBACK.logoSrc,
-    isEliminated: data.isEliminated ?? BANNER_FALLBACK.isEliminated,
-    eliminatedName: data.eliminatedName ?? BANNER_FALLBACK.eliminatedName,
-    selectionWindowClosed: data.selectionWindowClosed ?? BANNER_FALLBACK.selectionWindowClosed,
-    isFollowing: data.isFollowing ?? BANNER_FALLBACK.isFollowing,
-    openWindowDescription:
-      data.openWindowDescription ?? BANNER_FALLBACK.openWindowDescription,
-    closedWindowShortDescription:
-      data.closedWindowShortDescription ?? BANNER_FALLBACK.closedWindowShortDescription,
-    closedWindowFollowingDescription:
-      data.closedWindowFollowingDescription ??
-      BANNER_FALLBACK.closedWindowFollowingDescription,
-    eliminatedClosedSubcaption:
-      data.eliminatedClosedSubcaption ?? BANNER_FALLBACK.eliminatedClosedSubcaption,
-  };
-}
+import { FollowFlowConfigService } from '../../services/follow-flow-config.service';
+import {
+  FOLLOW_FLOW_FALLBACK,
+  FollowFlowConfig,
+  formatSelectionCountdown,
+  getRemainingSeconds,
+} from '../../models/follow-flow-config';
 
 @Component({
   selector: 'app-following',
@@ -67,10 +18,13 @@ function mergeFollowingConfig(data: Partial<FollowingBannerConfig>): FollowingBa
   styleUrl: './following.component.css',
 })
 export class FollowingComponent implements OnInit, OnDestroy {
-  readonly banner = signal<FollowingBannerConfig>(BANNER_FALLBACK);
+  readonly banner = signal<FollowFlowConfig>(FOLLOW_FLOW_FALLBACK);
+
   readonly contestantName = signal('');
   readonly contestantImage = signal('');
-  readonly showToast = signal(true);
+  readonly showToast = signal(false);
+
+  readonly tick = signal(0);
 
   readonly eliminatedDisplayName = computed(
     () => this.banner().eliminatedName.trim() || this.contestantName(),
@@ -95,11 +49,75 @@ export class FollowingComponent implements OnInit, OnDestroy {
     return b.closedWindowFollowingDescription;
   });
 
+  readonly showTimerPill = computed(() => {
+    const b = this.banner();
+    const ts = b.timerStatus;
+    return ts.showTimerPill && !b.selectionWindowClosed && ts.timerMode !== 'none';
+  });
+
+  readonly timerPillPrefix = computed(() => {
+    const m = this.banner().timerStatus.timerMode;
+    if (m === 'closesOn') {
+      return 'CLOSES ON:';
+    }
+    if (m === 'closesIn') {
+      return 'CLOSES IN:';
+    }
+    return '';
+  });
+
+  readonly timerPillValue = computed(() => {
+    this.tick();
+    const ts = this.banner().timerStatus;
+    if (ts.timerMode === 'closesOn') {
+      return ts.closesOnLabel;
+    }
+    if (ts.timerMode === 'closesIn') {
+      const override = ts.timerDisplayOverride.trim();
+      if (override) {
+        return override;
+      }
+      if (!ts.selectionClosesAt.trim()) {
+        return '—';
+      }
+      const sec = getRemainingSeconds(ts.selectionClosesAt);
+      return formatSelectionCountdown(sec);
+    }
+    return '';
+  });
+
+  readonly timerValueTone = computed((): 'default' | 'gold' | 'urgent' => {
+    this.tick();
+    const ts = this.banner().timerStatus;
+    if (ts.isUrgent) {
+      return 'urgent';
+    }
+    if (
+      ts.timerMode === 'closesIn' &&
+      !ts.timerDisplayOverride.trim() &&
+      ts.selectionClosesAt
+    ) {
+      const sec = getRemainingSeconds(ts.selectionClosesAt);
+      if (sec <= ts.urgentThresholdSeconds) {
+        return 'urgent';
+      }
+    }
+    if (ts.pillTone === 'gold') {
+      return 'gold';
+    }
+    if (ts.pillTone === 'urgent') {
+      return 'urgent';
+    }
+    return 'default';
+  });
+
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
+  private countdownInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private readonly router: Router,
     private readonly route: ActivatedRoute,
+    private readonly configService: FollowFlowConfigService,
   ) {}
 
   ngOnInit(): void {
@@ -107,25 +125,58 @@ export class FollowingComponent implements OnInit, OnDestroy {
     this.contestantName.set(params['name'] ?? '');
     this.contestantImage.set(params['image'] ?? '');
 
-    this.toastTimer = setTimeout(() => this.showToast.set(false), 3000);
-
-    void fetch(BANNER_JSON_URL)
-      .then((res) => (res.ok ? res.json() : Promise.reject(new Error('banner'))))
-      .then((data: Partial<FollowingBannerConfig>) => {
-        this.banner.set(mergeFollowingConfig(data));
-      })
-      .catch(() => {
-        this.banner.set(BANNER_FALLBACK);
+    const fromSelection =
+      params['fromSelection'] === '1' || params['fromSelection'] === 'true';
+    if (fromSelection) {
+      this.showToast.set(true);
+      this.toastTimer = setTimeout(() => this.showToast.set(false), 3000);
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { fromSelection: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
       });
+    }
+
+    void this.configService.load().then((cfg) => {
+      this.banner.set(cfg);
+      this.startCountdownIfNeeded(cfg);
+    });
+  }
+
+  private startCountdownIfNeeded(cfg: FollowFlowConfig): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+    const ts = cfg.timerStatus;
+    if (
+      ts.timerMode !== 'closesIn' ||
+      ts.timerDisplayOverride.trim() ||
+      !ts.selectionClosesAt.trim()
+    ) {
+      return;
+    }
+    this.countdownInterval = setInterval(() => {
+      this.tick.update((n) => n + 1);
+    }, 1000);
   }
 
   ngOnDestroy(): void {
     if (this.toastTimer) {
       clearTimeout(this.toastTimer);
     }
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
   }
 
   onChange(): void {
-    this.router.navigate(['/select-contestant']);
+    this.router.navigate(['/select-contestant'], {
+      queryParams: {
+        name: this.contestantName(),
+        image: this.contestantImage(),
+      },
+    });
   }
 }

@@ -5,6 +5,7 @@
   margin: 0;
   padding: 0;
   min-height: 0;
+  margin-top: -20px;
 }
 
 .lion-icon {
@@ -24,10 +25,10 @@
 }
 
 .description {
-  margin: 0 0 20px;
+  /* margin: 0 0 20px; */
   font-size: 0.875rem;
   color: #9ca3af;
-  line-height: 1.4;
+  /* line-height: 1.4; */
   max-width: 280px;
   text-align: center;
 }
@@ -48,6 +49,69 @@
   color: #fff;
   text-align: center;
   line-height: 1.2;
+}
+
+.timer-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+.timer-pill__prefix {
+  margin-right: 0.35em;
+}
+
+.timer-pill__value {
+  font-weight: 700;
+}
+
+.timer-pill__value--gold {
+  color: #e8c04d;
+}
+
+.timer-pill__value--urgent {
+  color: #ff3b4a;
+}
+
+.life-saver-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 86px;
+  z-index: 4;
+  margin: 0 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(26, 43, 86, 0.95);
+  color: #93c5fd;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  box-sizing: border-box;
+}
+
+.life-saver-bar--urgent {
+  color: #ff6b6b;
+}
+
+.life-saver-bar__link {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .following-card {
@@ -168,7 +232,7 @@
 .following-card--eliminated-closed {
   height: auto;
   min-height: 60px;
-  max-height: 60px;
+  max-height: none;
   align-items: center;
   padding: 10px 14px 10px 12px;
 }

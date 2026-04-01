@@ -9,6 +9,16 @@
       height="120"
     />
     <h1 class="title">Follow to win 50 Lakh!</h1>
+    @if (showTimerPill()) {
+      <div class="timer-pill" aria-live="polite">
+        <span class="timer-pill__prefix">{{ timerPillPrefix() }}</span>
+        <span
+          class="timer-pill__value"
+          [class.timer-pill__value--gold]="timerValueTone() === 'gold'"
+          [class.timer-pill__value--urgent]="timerValueTone() === 'urgent'"
+        >{{ timerPillValue() }}</span>
+      </div>
+    }
     @if (showClosedBadge()) {
       <div class="closed-badge" aria-label="Selection closed">CLOSED</div>
     }
@@ -95,6 +105,19 @@
         </defs>
       </svg>
       <span class="toast__text">Started following</span>
+    </div>
+  }
+  @if (banner().timerStatus.lifeSaverBar.show) {
+    <div
+      class="life-saver-bar"
+      [class.life-saver-bar--urgent]="banner().timerStatus.lifeSaverBar.isUrgent"
+    >
+      <span class="life-saver-bar__text">{{ banner().timerStatus.lifeSaverBar.text }}</span>
+      @if (banner().timerStatus.lifeSaverBar.howItWorksUrl) {
+        <a class="life-saver-bar__link" [href]="banner().timerStatus.lifeSaverBar.howItWorksUrl"
+          >How it works</a
+        >
+      }
     </div>
   }
   @if (banner().showBanner) {

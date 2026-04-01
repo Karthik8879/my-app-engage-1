@@ -8,7 +8,24 @@
     <h1 class="screen-title">Select a contestant</h1>
   </div>
 
-  <p class="subtitle">Tap on the contestant you want to follow</p>
+  @if (!configLoaded()) {
+    <p class="subtitle">Tap on your favorite contestant to follow them and stand a chance to win big</p>
+  } @else if (selectionLocked()) {
+    <p class="subtitle subtitle--closed">{{ flowConfig().timerStatus.selectScreen.closedTitle }}</p>
+  } @else if (flowConfig().timerStatus.selectScreen.headerMode === 'dateOn') {
+    <p class="subtitle">
+      Selection window closes on
+      <span class="subtitle__accent">{{ flowConfig().timerStatus.selectScreen.dateLabel }}</span>
+    </p>
+  } @else {
+    <p class="subtitle">
+      Selection window closes in
+      <span
+        class="subtitle__time"
+        [class.subtitle__time--urgent]="selectCountdownUrgent()"
+      >{{ selectCountdownText() }}</span>
+    </p>
+  }
 
   <div class="grid-scroll">
     <div class="contestant-grid">
@@ -17,6 +34,8 @@
           type="button"
           class="contestant-cell"
           [class.selected]="isSelected(contestant)"
+          [class.contestant-cell--locked]="selectionLocked()"
+          [disabled]="selectionLocked()"
           (click)="selectContestant(contestant)"
         >
           <div class="avatar-wrap">
@@ -59,12 +78,16 @@
     </div>
   </div>
 
-  @if (selectedContestant()) {
+  @if (showCta()) {
     <div class="follow-cta-wrap">
       <app-call-to-action-button
-        [label]="'Follow ' + selectedContestant()!.name"
-        (click)="onFollow()"
+        [label]="ctaLabel()"
+        (click)="onCtaClick()"
       />
     </div>
+  }
+
+  @if (showSupportToast()) {
+    <div class="support-toast" role="status">{{ flowConfig().timerStatus.selectScreen.supportClosedToast }}</div>
   }
 </app-screen-container>
