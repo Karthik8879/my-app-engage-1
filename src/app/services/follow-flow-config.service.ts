@@ -19,7 +19,7 @@ export class FollowFlowConfigService {
     if (this.inflight) {
       return this.inflight;
     }
-    this.inflight = fetch(BANNER_JSON_URL)
+    this.inflight = fetch(BANNER_JSON_URL, { cache: 'no-cache' })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error('config'))))
       .then((data: Partial<FollowFlowConfig>) => {
         const merged = mergeFollowFlowConfig(data);

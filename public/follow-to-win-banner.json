@@ -1,4 +1,6 @@
 {
+  "forceErrorScreen": true,
+  "forceErrorScreenKind": "actionable",
   "showBanner": true,
   "title": "The world is yours",
   "subtitle": "This is a non clickable banner",
@@ -34,9 +36,37 @@
     }
   },
   "guestFlow": {
-    "enabled": true,
+    "enabled": false,
     "selectSubtitle": "Tap on the contestant you want to follow",
     "loginBannerText": "Login to follow a contestant",
     "loginToastText": "Login to follow a contestant"
+  },
+  "errorScreens": {
+    "general": {
+      "iconSrc": "/error_jv.svg",
+      "title": "Oops! Something Went Wrong.",
+      "subtitle": "Please come back after some time to continue playing.",
+      "showCta": true
+    },
+    "network": {
+      "iconSrc": "/error_jv.svg",
+      "title": "Network Error",
+      "subtitle": "Unable to connect to JioHotstar. This could be a problem with your network connection.",
+      "showCta": false
+    },
+    "location": {
+      "iconSrc": "/notAvailableLocationIcon.svg",
+      "title": "Not available in your location",
+      "subtitle": "",
+      "showCta": true
+    },
+    "actionable": {
+      "iconSrc": "/SomethingWentWrongIcon.svg",
+      "title": "Something went wrong!",
+      "subtitle": "Please select a contestant to follow again.",
+      "showCta": true,
+      "ctaLabel": "Follow a contestant",
+      "ctaPath": "/select-contestant"
+    }
   }
 }

@@ -23,6 +23,40 @@ export interface GuestFlowConfig {
   loginToastText: string;
 }
 
+export type ErrorStateKind = 'general' | 'network' | 'location' | 'actionable';
+
+export interface ErrorScreenVariantConfig {
+  iconSrc: string;
+  title: string;
+  subtitle: string;
+  showCta: boolean;
+  ctaLabel?: string;
+  ctaPath?: string;
+}
+
+export type ErrorScreensConfig = Record<ErrorStateKind, ErrorScreenVariantConfig>;
+
+export function parseErrorStateKind(raw: string | null | undefined): ErrorStateKind {
+  if (raw === 'general' || raw === 'network' || raw === 'location' || raw === 'actionable') {
+    return raw;
+  }
+  return 'general';
+}
+
+/** CMS / JSON may send boolean as string; normalize for merge. */
+function coerceBoolean(value: unknown, fallback: boolean): boolean {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (value === 'true' || value === 1) {
+    return true;
+  }
+  if (value === 'false' || value === 0) {
+    return false;
+  }
+  return fallback;
+}
+
 export interface TimerStatusConfig {
   showTimerPill: boolean;
   timerMode: TimerMode;
@@ -51,6 +85,11 @@ export interface FollowFlowConfig {
   eliminatedClosedSubcaption: string;
   timerStatus: TimerStatusConfig;
   guestFlow: GuestFlowConfig;
+  errorScreens: ErrorScreensConfig;
+  /** When true, every guarded route redirects to `/error` (see forceErrorScreenGuard). */
+  forceErrorScreen: boolean;
+  /** Query `type` for the forced error screen (default general). */
+  forceErrorScreenKind: ErrorStateKind;
 }
 
 export const DEFAULT_TIMER_STATUS: TimerStatusConfig = {
@@ -83,6 +122,36 @@ export const DEFAULT_GUEST_FLOW: GuestFlowConfig = {
   loginToastText: 'Login to follow a contestant',
 };
 
+export const DEFAULT_ERROR_SCREENS: ErrorScreensConfig = {
+  general: {
+    iconSrc: '/error_jv.svg',
+    title: 'Oops! Something Went Wrong.',
+    subtitle: 'Please come back after some time to continue playing.',
+    showCta: false,
+  },
+  network: {
+    iconSrc: '/error_jv.svg',
+    title: 'Network Error',
+    subtitle:
+      'Unable to connect to JioHotstar. This could be a problem with your network connection.',
+    showCta: false,
+  },
+  location: {
+    iconSrc: '/notAvailableLocationIcon.svg',
+    title: 'Not available in your location',
+    subtitle: '',
+    showCta: false,
+  },
+  actionable: {
+    iconSrc: '/SomethingWentWrongIcon.svg',
+    title: 'Something went wrong!',
+    subtitle: 'Please select a contestant to follow again.',
+    showCta: true,
+    ctaLabel: 'Follow a contestant',
+    ctaPath: '/select-contestant',
+  },
+};
+
 export const FOLLOW_FLOW_FALLBACK: FollowFlowConfig = {
   showBanner: true,
   title: 'The world is yours',
@@ -100,7 +169,37 @@ export const FOLLOW_FLOW_FALLBACK: FollowFlowConfig = {
   eliminatedClosedSubcaption: 'You can no longer follow this contestant.',
   timerStatus: DEFAULT_TIMER_STATUS,
   guestFlow: DEFAULT_GUEST_FLOW,
+  errorScreens: DEFAULT_ERROR_SCREENS,
+  forceErrorScreen: false,
+  forceErrorScreenKind: 'general',
 };
+
+function mergeErrorVariant(
+  fallback: ErrorScreenVariantConfig,
+  data?: Partial<ErrorScreenVariantConfig>,
+): ErrorScreenVariantConfig {
+  const v = data ?? {};
+  return {
+    iconSrc: v.iconSrc ?? fallback.iconSrc,
+    title: v.title ?? fallback.title,
+    subtitle: v.subtitle ?? fallback.subtitle,
+    showCta: coerceBoolean(v.showCta, fallback.showCta),
+    ctaLabel: v.ctaLabel ?? fallback.ctaLabel,
+    ctaPath: v.ctaPath ?? fallback.ctaPath,
+  };
+}
+
+function mergeErrorScreens(
+  data?: Partial<Record<ErrorStateKind, Partial<ErrorScreenVariantConfig>>>,
+): ErrorScreensConfig {
+  const e = data ?? {};
+  return {
+    general: mergeErrorVariant(DEFAULT_ERROR_SCREENS.general, e.general),
+    network: mergeErrorVariant(DEFAULT_ERROR_SCREENS.network, e.network),
+    location: mergeErrorVariant(DEFAULT_ERROR_SCREENS.location, e.location),
+    actionable: mergeErrorVariant(DEFAULT_ERROR_SCREENS.actionable, e.actionable),
+  };
+}
 
 function mergeGuestFlow(data?: Partial<GuestFlowConfig>): GuestFlowConfig {
   const g = data ?? {};
@@ -166,6 +265,12 @@ export function mergeFollowFlowConfig(data: Partial<FollowFlowConfig>): FollowFl
       FOLLOW_FLOW_FALLBACK.eliminatedClosedSubcaption,
     timerStatus: mergeTimerStatus(data.timerStatus),
     guestFlow: mergeGuestFlow(data.guestFlow),
+    errorScreens: mergeErrorScreens(data.errorScreens),
+    forceErrorScreen: coerceBoolean(data.forceErrorScreen, FOLLOW_FLOW_FALLBACK.forceErrorScreen),
+    forceErrorScreenKind:
+      typeof data.forceErrorScreenKind === 'string'
+        ? parseErrorStateKind(data.forceErrorScreenKind)
+        : FOLLOW_FLOW_FALLBACK.forceErrorScreenKind,
   };
 }
 

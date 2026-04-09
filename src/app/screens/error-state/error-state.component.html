@@ -1,0 +1,29 @@
+<app-screen-container>
+  @if (actionableChrome()) {
+    <app-header [showShare]="false" [showInfo]="true" />
+  }
+  <div class="error-main">
+    <img [src]="variant().iconSrc" alt="" class="error-icon" width="200" height="200" />
+    <h1 class="error-title">{{ variant().title }}</h1>
+    @if (variant().subtitle.trim()) {
+      <p class="error-subtitle">{{ variant().subtitle }}</p>
+    }
+    @if (variant().showCta && !flow().forceErrorScreen) {
+      <div class="cta-wrap">
+        <app-call-to-action-button
+          [label]="variant().ctaLabel ?? 'Follow a contestant'"
+          (click)="onCtaClick()"
+        />
+      </div>
+    }
+  </div>
+  @if (actionableChrome() && flow().showBanner) {
+    <div class="bottom-banner" aria-hidden="true">
+      <div class="bottom-banner__copy">
+        <p class="bottom-banner__title">{{ flow().title }}</p>
+        <p class="bottom-banner__subtitle">{{ flow().subtitle }}</p>
+      </div>
+      <img class="bottom-banner__logo" [src]="flow().logoSrc" alt="" />
+    </div>
+  }
+</app-screen-container>
